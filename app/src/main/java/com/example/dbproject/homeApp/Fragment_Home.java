@@ -57,6 +57,7 @@ public class Fragment_Home extends Fragment {
         try {
             if (mDBHelper != null) {
 //                mDBHelper.InsertNotice(123, "123", "123", "123", "!24124");
+                 mDBHelper.InsertItem("우산1", "우산","소프트웨어학부","Reservation","대여 가능");
                 mNoticeItems = mDBHelper.getNoticeList();
                 if (noticeAdapter == null) {
                     noticeAdapter = new NoticeAdapter(mNoticeItems, getActivity().getApplicationContext());

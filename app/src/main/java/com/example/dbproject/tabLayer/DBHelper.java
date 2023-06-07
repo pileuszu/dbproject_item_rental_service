@@ -4,23 +4,27 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.Nullable;
 
-import com.example.dbproject.homeApp.historyApp.HISTORY;
+import com.example.dbproject.historyApp.HISTORY;
 import com.example.dbproject.homeApp.NOTICE;
 import com.example.dbproject.proposalApp.PROPOSAL;
 import com.example.dbproject.rentalApp.ITEM_CATEGORY;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "datahbaawe.db";
     private final String databaseIdentifier;
+    private static final String TAG = "DBHelper";
+
 
 
     public DBHelper(@Nullable Context context) {
@@ -39,7 +43,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS NOTICE (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, writer TEXT, date TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS STUDENT (id INTEGER PRIMARY KEY AUTOINCREMENT, pw TEXT, name TEXT, dp1 TEXT, dp2 TEXT, sDate TEXT, status TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS ITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, category TEXT, location TEXT, type TEXT, status TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS RENTAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, expired_date TEXT, return_date TEXT, extend TEXT, return TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS RENTAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, expired_date TEXT, return_date TEXT, extend INTEGER, return TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
         db.execSQL("CREATE TABLE IF NOT EXISTS PROPOSAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, content TEXT, date TEXT, time TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
 
     }
@@ -152,16 +156,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return proposalItems;
     }
 
-    public ArrayList<ITEM_CATEGORY> getItem_Category_List(String location) {
+    public ArrayList<ITEM_CATEGORY> getRentalItem_Category_List(String location) {
         ArrayList<ITEM_CATEGORY> categoryItems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(location)};
-        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN status = '대여 가능' THEN 1 END) AS available_count\n" +
-                "FROM ITEM\n" +
-                "WHERE location = ?\n" +
-                "GROUP BY category, location\n" +
-                "HAVING COUNT(*) > 1", selectionArgs);
+        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN status = '대여 가능' THEN 1 END) AS available_count " +
+                "FROM ITEM " +
+                "WHERE location = ? AND type = 'RENTAL'" +
+                "GROUP BY category, location", selectionArgs);
         if(cursor.getCount() != 0) {
+            Log.i(TAG, "cursor.getCount() != 0");
             // 조회된 데이터가 있을 때 내부 수행
             int category_Index = cursor.getColumnIndex("category");
             int location_Index = cursor.getColumnIndex("location");
@@ -181,11 +185,74 @@ public class DBHelper extends SQLiteOpenHelper {
                 item_category.setItem_left_amount(_available_count);
                 categoryItems.add(item_category);
             }
+        } else if (cursor.getCount() == 0) {
+            Log.i(TAG, "cursor.getCount() == 0");
         }
         cursor.close();
 
         return categoryItems;
     }
+
+    public ArrayList<ITEM_CATEGORY> getReservationItem_Category_List(String location) {
+        ArrayList<ITEM_CATEGORY> categoryItems = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        String[] selectionArgs = {String.valueOf(location)};
+        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN status = '대여 가능' THEN 1 END) AS available_count " +
+                "FROM ITEM " +
+                "WHERE location = ? AND type = 'Reservation'" +
+                "GROUP BY category, location", selectionArgs);
+        if(cursor.getCount() != 0) {
+            Log.i(TAG, "cursor.getCount() != 0");
+            // 조회된 데이터가 있을 때 내부 수행
+            int category_Index = cursor.getColumnIndex("category");
+            int location_Index = cursor.getColumnIndex("location");
+            int total_count_Index = cursor.getColumnIndex("total_count");
+            int available_count_Index = cursor.getColumnIndex("available_count");
+
+            while (cursor.moveToNext()) {
+                String _category = cursor.getString(category_Index);
+                String _location = cursor.getString(location_Index);
+                Integer _total_count = cursor.getInt(total_count_Index);
+                Integer _available_count = cursor.getInt(available_count_Index);
+
+                ITEM_CATEGORY item_category = new ITEM_CATEGORY();
+                item_category.setItem_category(_category);
+                item_category.setItem_location(_location);
+                item_category.setItem_total_amount(_total_count);
+                item_category.setItem_left_amount(_available_count);
+                categoryItems.add(item_category);
+            }
+        } else if (cursor.getCount() == 0) {
+            Log.i(TAG, "cursor.getCount() == 0");
+        }
+        cursor.close();
+
+        return categoryItems;
+    }
+
+    public Integer selectItemId_For_RentalItem(String _category, String _location) {
+        List<Integer> matchingItemIds = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        String[] selectionArgs = {String.valueOf(_category), String.valueOf(_location)};
+        Cursor cursor = db.rawQuery("SELECT id FROM ITEM WHERE category = ? AND location = ? AND type = 'Rental'", selectionArgs);
+        if(cursor.getCount() != 0) {
+            int id_Index = cursor.getColumnIndex("id");
+            while (cursor.moveToNext()) {
+                Integer _id = cursor.getInt(id_Index);
+                matchingItemIds.add(_id);
+            }
+        }
+        cursor.close();
+        if (matchingItemIds.size() > 0) {
+            Random random = new Random();
+            int randomIndex = random.nextInt(matchingItemIds.size());
+            Log.i(TAG, "selectItemId_For_RentalItem Success!");
+            return matchingItemIds.get(randomIndex);
+        } else {
+            return null;
+        }
+    }
+
 
 
     // INSERT 문
@@ -205,7 +272,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO ITEM (name, category, location, type, status) VALUES('" + _name + "','" + _category + "','" + _location + "','" + _type + "','" + _status + "');");
     }
-    public void InsertRental(Integer _student_id, Integer _item_id, String _start_date, String _expired_date, String _return_date, String _extend, String _return) {
+    public void InsertRental(Integer _student_id, Integer _item_id, String _start_date, String _expired_date, String _return_date, Integer _extend, String _return) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO RENTAL (student_id, item_id, start_date, expired_date, return_date, extend, return) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _expired_date + "','" + _return_date + "','" + _extend + "','" + _return + "');");
     }
@@ -215,10 +282,16 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // UPDATE 문
-    public void UpdateNotice(String _title, String _content, String _writer, String _date, String _beforeData) {
+    public void updateNotice(String _title, String _content, String _writer, String _date, String _beforeData) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("UPDATE NOTICE SET title='" + _title + "', content='" + _content + "', writer='" + _writer + "', date='" + _date + "', WHERE date='" + _beforeData + "'");
     }
+    public void updateItem(String _status, Integer _beforeId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE ITEM SET status='" + _status + "' WHERE id='" + _beforeId + "'");
+    }
+
+
     public void updateInquiryList(List<String> inquiryList, ArrayAdapter<String> adapter) {
         inquiryList.clear();
         SQLiteDatabase db = getReadableDatabase();

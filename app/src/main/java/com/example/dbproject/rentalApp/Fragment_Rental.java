@@ -1,5 +1,6 @@
 package com.example.dbproject.rentalApp;
 
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -35,9 +37,7 @@ public class Fragment_Rental extends Fragment {
     private String location_1 = "총학생회";
     private String location_2 = "소프트웨어학부";
     private String location_3 = "소프트웨어학과";
-
-
-
+    private Button rental_re_button;
     public Fragment_Rental() {
         // Required empty public constructor
     }
@@ -59,36 +59,49 @@ public class Fragment_Rental extends Fragment {
         mItem_CategoryItems_3 = new ArrayList<>();
         rental_scrollview = view.findViewById(R.id.rental_scrollview);
         rental_scrollview.setSmoothScrollingEnabled(true);
-
+        loadRecentDB();
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadRecentDB();
+        rental_re_button = view.findViewById(R.id.rental_re_button);
+        rental_re_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadRecentDB();
+            }
+        });
+
     }
 
-    private void loadRecentDB() {
+    protected void loadRecentDB() {
         try {
             if (mDBHelper != null) {
-                mItem_CategoryItems_1 = mDBHelper.getItem_Category_List(location_1);
-                mItem_CategoryItems_2 = mDBHelper.getItem_Category_List(location_2);
-                mItem_CategoryItems_3 = mDBHelper.getItem_Category_List(location_3);
+                mItem_CategoryItems_1 = mDBHelper.getRentalItem_Category_List(location_1);
+                mItem_CategoryItems_2 = mDBHelper.getRentalItem_Category_List(location_2);
+                mItem_CategoryItems_3 = mDBHelper.getRentalItem_Category_List(location_3);
                 if (categoryAdapter_1 == null) {
                     categoryAdapter_1 = new CategoryAdapter(mItem_CategoryItems_1, getActivity().getApplicationContext());
                     recyclerView_rental_title1.setHasFixedSize(true);
                     recyclerView_rental_title1.setAdapter(categoryAdapter_1);
+                } else {
+                    categoryAdapter_1.setCategoryItems(mItem_CategoryItems_1);
                 }
                 if (categoryAdapter_2 == null) {
                     categoryAdapter_2 = new CategoryAdapter(mItem_CategoryItems_2, getActivity().getApplicationContext());
                     recyclerView_rental_title2.setHasFixedSize(true);
                     recyclerView_rental_title2.setAdapter(categoryAdapter_2);
+                } else {
+                    categoryAdapter_2.setCategoryItems(mItem_CategoryItems_2);
                 }
                 if (categoryAdapter_3 == null) {
                     categoryAdapter_3 = new CategoryAdapter(mItem_CategoryItems_3, getActivity().getApplicationContext());
                     recyclerView_rental_title3.setHasFixedSize(true);
                     recyclerView_rental_title3.setAdapter(categoryAdapter_3);
+                } else {
+                    categoryAdapter_3.setCategoryItems(mItem_CategoryItems_3);
                 }
             }
         } catch (Exception e) {
@@ -96,7 +109,6 @@ public class Fragment_Rental extends Fragment {
             Log.e("Fragment_Rental", "Error in loadRecentDB(): " + e.getMessage());
         }
     }
-
 
     @Override
     public void onDestroyView() {

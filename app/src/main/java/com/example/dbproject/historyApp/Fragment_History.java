@@ -1,4 +1,4 @@
-package com.example.dbproject.homeApp.historyApp;
+package com.example.dbproject.historyApp;
 
 import android.os.Bundle;
 

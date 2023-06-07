@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.dbproject.homeApp.historyApp.Fragment_History;
+import com.example.dbproject.historyApp.Fragment_History;
 import com.example.dbproject.proposalApp.Fragment_Proposal;
 
 import com.example.dbproject.homeApp.Fragment_Home;

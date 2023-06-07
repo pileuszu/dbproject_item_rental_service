@@ -6,7 +6,7 @@ android:layout_width="match_parent"
 android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tv_rental_category_name"
+        android:id="@+id/tv_reservation_category_name"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -15,28 +15,18 @@ android:layout_height="wrap_content">
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_rental_amount"
-        android:layout_width="227dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:ems="10"
-        android:text="총 개수 / 남은 개수"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tv_rental_category_name"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
-        android:id="@+id/button"
+        android:id="@+id/reservation_borrow_button"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:text="빌리기"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tv_rental_amount"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.909"
+        app:layout_constraintStart_toEndOf="@+id/tv_reservation_category_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

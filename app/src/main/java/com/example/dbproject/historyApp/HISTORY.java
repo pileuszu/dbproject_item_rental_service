@@ -1,4 +1,4 @@
-package com.example.dbproject.homeApp.historyApp;
+package com.example.dbproject.historyApp;
 
 public class HISTORY {
     public Integer history_id;

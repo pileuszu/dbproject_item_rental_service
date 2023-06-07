@@ -1,4 +1,4 @@
-package com.example.dbproject.homeApp.historyApp;
+package com.example.dbproject.historyApp;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -35,8 +35,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull HistoryAdapter.ViewHolder holder, int position) {
-        holder.tv_history_id.setText(historyItems.get(position).getHistory_id());
-        holder.tv_history_item_id.setText(historyItems.get(position).getHistory_item_id());
+        holder.tv_history_id.setText(String.valueOf(historyItems.get(position).getHistory_id()));
+        holder.tv_history_item_id.setText(String.valueOf(historyItems.get(position).getHistory_item_id()));
         holder.tv_history_item_name.setText(historyItems.get(position).getHistory_item_name());
         holder.tv_history_rental_start_date.setText(historyItems.get(position).getHistory_start_date());
         holder.tv_history_rental_return_date.setText(historyItems.get(position).getHistory_return_date());
