@@ -26,12 +26,43 @@
         android:layout_below="@id/buttonPickDate"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:text="Selected Date: "
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="430dp" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonPickDate" />
+
+    <TextView
+        android:id="@+id/schedule_item_name"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:text="Item_Name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSelectedDate" />
+
+    <TextView
+        android:id="@+id/schedule_count"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:text="총 개수 / 남은 개수"
+        app:layout_constraintStart_toEndOf="@+id/schedule_item_name"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSelectedDate" />
+
+    <Button
+        android:id="@+id/schedule_confirm_button"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="확인"
+        app:layout_constraintStart_toEndOf="@+id/schedule_count"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSelectedDate" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

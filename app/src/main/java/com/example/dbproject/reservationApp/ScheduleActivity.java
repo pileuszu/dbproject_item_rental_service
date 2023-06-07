@@ -14,17 +14,19 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dbproject.R;
+import com.example.dbproject.tabLayer.DBHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class ScheduleActivity extends AppCompatActivity {
-
+    public Integer studentID = 190012345;
     private TextView textViewSelectedDate;
     private PopupWindow popupWindow;
     private DatePicker datePicker;
     private Calendar calendar;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
