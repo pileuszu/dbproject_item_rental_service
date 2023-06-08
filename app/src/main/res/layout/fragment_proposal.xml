@@ -21,6 +21,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+
     <ScrollView
         android:id="@+id/proposal_scrollview"
         android:layout_width="match_parent"

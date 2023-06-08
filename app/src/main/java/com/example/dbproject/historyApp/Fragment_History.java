@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ScrollView;
 
 import com.example.dbproject.tabLayer.DBHelper;
@@ -26,6 +27,7 @@ public class Fragment_History extends Fragment {
     private DBHelper mDBHelper;
     private HistoryAdapter historyAdapter;
     private ScrollView scrollView;
+    private Button history_re_button;
 
     public Fragment_History() {
         // Required empty public constructor
@@ -43,13 +45,20 @@ public class Fragment_History extends Fragment {
         mHistoryItems = new ArrayList<>();
         scrollView = view.findViewById(R.id.history_scrollview);
         scrollView.setSmoothScrollingEnabled(true);
+        loadRecentDB(studentID);
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadRecentDB(studentID);
+        history_re_button = view.findViewById(R.id.history_re_button);
+        history_re_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadRecentDB(studentID);
+            }
+        });
     }
 
     private void loadRecentDB(Integer _studentID) {
