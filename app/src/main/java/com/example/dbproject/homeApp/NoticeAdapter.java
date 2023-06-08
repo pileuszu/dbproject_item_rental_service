@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dbproject.DB_TABLE.NOTICE;
 import com.example.dbproject.R;
 import com.example.dbproject.tabLayer.DBHelper;
 
@@ -38,7 +39,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
         holder.tv_title.setText(noticeItems.get(position).getTitle());
         holder.tv_content.setText(noticeItems.get(position).getContent());
         holder.tv_writer.setText(noticeItems.get(position).getWriter());
-        holder.tv_date.setText(noticeItems.get(position).getDate());
+        holder.tv_date.setText(noticeItems.get(position).getDate() + " " + noticeItems.get(position).getTime());
     }
 
     @Override
@@ -55,10 +56,10 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tv_title = itemView.findViewById(R.id.tv_history_id);
-            tv_content = itemView.findViewById(R.id.tv_content);
-            tv_writer = itemView.findViewById(R.id.tv_writer);
-            tv_date = itemView.findViewById(R.id.tv_date);
+            tv_title = itemView.findViewById(R.id.tv_notice_title);
+            tv_content = itemView.findViewById(R.id.tv_notice_content);
+            tv_writer = itemView.findViewById(R.id.tv_notice_writer);
+            tv_date = itemView.findViewById(R.id.tv_notice_time);
 
 
         }

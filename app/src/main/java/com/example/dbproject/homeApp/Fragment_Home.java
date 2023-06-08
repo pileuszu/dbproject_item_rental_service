@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.dbproject.DB_TABLE.NOTICE;
 import com.example.dbproject.R;
 import com.example.dbproject.tabLayer.DBHelper;
 
@@ -56,13 +57,7 @@ public class Fragment_Home extends Fragment {
     private void loadRecentDB() {
         try {
             if (mDBHelper != null) {
-//                mDBHelper.InsertNotice(123, "123", "123", "123", "!24124");
-//                mDBHelper.InsertItem("우산1", "우산","소프트웨어학부","Reservation","대여 가능");
-//                mDBHelper.InsertItem("우산2", "우산","소프트웨어학부","Reservation","대여 가능");
-//                mDBHelper.InsertItem("우산3", "우산","소프트웨어학부","Reservation","대여중");
-//                mDBHelper.InsertItem("우산4", "우산","소프트웨어학부","Reservation","대여 가능");
-//                mDBHelper.InsertReservation(190012345,28, "2023-06-12", null, "예약중");
-//                mDBHelper.InsertReservation(190012345,2, "2023-06-13", null, "예약중");
+                mDBHelper.InsertNoticeDummy();
                 mNoticeItems = mDBHelper.getNoticeList();
                 if (noticeAdapter == null) {
                     noticeAdapter = new NoticeAdapter(mNoticeItems, getActivity().getApplicationContext());

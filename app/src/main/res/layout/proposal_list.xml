@@ -11,7 +11,6 @@
         android:layout_height="14dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:text="PID"
         android:textAlignment="center"
@@ -21,6 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <TextView
         android:id="@+id/tv_proposal_content"
         android:layout_width="200dp"
@@ -28,31 +28,13 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Proposal_Content"
+        android:text="Proposal_content"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_proposal_id"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
-
-    <TextView
-        android:id="@+id/tv_proposal_date"
-        android:layout_width="60dp"
-        android:layout_height="14dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Date"
-        android:textAlignment="center"
-        android:textColor="#000000"
-        android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_proposal_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/tv_proposal_time"
@@ -62,13 +44,29 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Time"
+        android:text="yyyy-MM-dd"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="parent"
 
-        app:layout_constraintStart_toEndOf="@+id/tv_proposal_date"
+        app:layout_constraintStart_toEndOf="@+id/tv_proposal_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/tv_proposal_response_state"
+        android:layout_width="60dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="답변대기중"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="10sp"
+
+        app:layout_constraintStart_toEndOf="@+id/tv_proposal_time"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 

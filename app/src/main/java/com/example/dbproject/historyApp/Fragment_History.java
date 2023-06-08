@@ -64,15 +64,6 @@ public class Fragment_History extends Fragment {
     private void loadRecentDB(Integer _studentID) {
         try {
             if (mDBHelper != null) {
-//                mDBHelper.InsertStudent(190012345, "123", "asdfwe", "software", "college", "1999/12/31", "nope");
-//                mDBHelper.InsertStudent(190054321, "122343", "asdfw1234e", "software", "college", "1999/12/32", "nope1231");
-//                mDBHelper.InsertItem(12345, "Charger", "asdfasdf", "software", "1231242", "123123");
-//                mDBHelper.InsertItem(23622, "wefwdf", "asdfasdf", "charger", "1223442", "12");
-//                mDBHelper.InsertItem(12362, "qwe", "asdfasdf", "software", "1212242", "efawe");
-//                mDBHelper.InsertItem(85435, "zxcvw", "asdfasdf", "charger", "1235", "awefa");
-//                mDBHelper.InsertRental(23129, 190012345, 12345, "1235123","!2345123m","2341241", "123124","1234");
-//                mDBHelper.InsertRental(1, 190012345, 12345, "2023-06-06", "2023-06-13", "2023-06-13", "no", "no");
-
                 mHistoryItems = mDBHelper.getHistoryList(_studentID);
                 if (historyAdapter == null) {
                     historyAdapter = new HistoryAdapter(mHistoryItems, requireContext());

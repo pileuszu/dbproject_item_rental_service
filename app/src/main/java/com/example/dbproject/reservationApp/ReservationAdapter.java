@@ -7,21 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dbproject.R;
-import com.example.dbproject.proposalApp.WriteActivity;
-import com.example.dbproject.rentalApp.ITEM_CATEGORY;
+import com.example.dbproject.DB_TABLE.ITEM_CATEGORY;
 import com.example.dbproject.tabLayer.DBHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ViewHolder> {
 

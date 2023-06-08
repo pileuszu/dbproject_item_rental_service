@@ -18,7 +18,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dbproject.R;
-import com.example.dbproject.rentalApp.ITEM_CATEGORY;
+import com.example.dbproject.DB_TABLE.ITEM_CATEGORY;
 import com.example.dbproject.tabLayer.DBHelper;
 
 import java.text.SimpleDateFormat;
@@ -116,9 +116,10 @@ public class ScheduleActivity extends AppCompatActivity {
                             public void onClick(View v) {
                                 if(categoryItem.getItem_left_amount() > 0) {
                                     Integer itemId = dbHelper.selectItemId_For_ReservationItem(categoryItem.getItem_category(), categoryItem.getItem_location());
-                                    dbHelper.updateItem("예약중", itemId);
-                                    dbHelper.InsertReservation(190012345, itemId, selectedDate, null, "예약중");
-                                    Toast.makeText(ScheduleActivity.this, "예약이 완료되었습니다.", Toast.LENGTH_SHORT).show();
+                                    dbHelper.UpdateItem("예약중", itemId);
+                                    dbHelper.InsertReservation(190012345, itemId, selectedDate, getCurrentTime(), null, null, "예약중");
+
+                                        Toast.makeText(ScheduleActivity.this, "예약이 완료되었습니다.", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(ScheduleActivity.this, "예약 가능한 아이템이 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
                                 }
@@ -139,9 +140,17 @@ public class ScheduleActivity extends AppCompatActivity {
             popupWindow = null;
         }
     }
-    private String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Date currentDate = new Date();
-        return dateFormat.format(currentDate);
-    }
+        private String getCurrentDate() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date currentDate = new Date();
+            return dateFormat.format(currentDate);
+        }
+
+        private String getCurrentTime() {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            Date currentTime = new Date();
+            return timeFormat.format(currentTime);
+        }
+
+
 }

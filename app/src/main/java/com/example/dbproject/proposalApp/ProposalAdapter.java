@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dbproject.DB_TABLE.PROPOSAL;
 import com.example.dbproject.R;
 import com.example.dbproject.tabLayer.DBHelper;
 
@@ -46,8 +47,7 @@ public class ProposalAdapter extends RecyclerView.Adapter<ProposalAdapter.ViewHo
     public void onBindViewHolder(@NonNull ProposalAdapter.ViewHolder holder, int position) {
         holder.tv_proposal_id.setText(String.valueOf(proposalItems.get(position).getId()));
         holder.tv_proposal_content.setText(proposalItems.get(position).getContent());
-        holder.tv_proposal_date.setText(proposalItems.get(position).getDate());
-        holder.tv_proposal_time.setText(proposalItems.get(position).getTime());
+        holder.tv_proposal_time.setText(proposalItems.get(position).getWrite_date() + " " + proposalItems.get(position).getWrite_time());
     }
 
     @Override
@@ -65,7 +65,6 @@ public class ProposalAdapter extends RecyclerView.Adapter<ProposalAdapter.ViewHo
             super(itemView);
             tv_proposal_id = itemView.findViewById(R.id.tv_proposal_id);
             tv_proposal_content = itemView.findViewById(R.id.tv_proposal_content);
-            tv_proposal_date = itemView.findViewById(R.id.tv_proposal_date);
             tv_proposal_time = itemView.findViewById(R.id.tv_proposal_time);
 
         }

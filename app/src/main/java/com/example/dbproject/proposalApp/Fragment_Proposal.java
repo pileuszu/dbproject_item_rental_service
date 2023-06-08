@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
 
+import com.example.dbproject.DB_TABLE.PROPOSAL;
 import com.example.dbproject.tabLayer.DBHelper;
 import com.example.dbproject.R;
 

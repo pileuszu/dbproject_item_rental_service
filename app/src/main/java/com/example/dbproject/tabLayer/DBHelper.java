@@ -9,29 +9,25 @@ import android.widget.ArrayAdapter;
 
 import androidx.annotation.Nullable;
 
+import com.example.dbproject.DB_TABLE.ITEM_CATEGORY;
+import com.example.dbproject.DB_TABLE.NOTICE;
+import com.example.dbproject.DB_TABLE.PROPOSAL;
 import com.example.dbproject.historyApp.HISTORY;
-import com.example.dbproject.homeApp.NOTICE;
-import com.example.dbproject.proposalApp.PROPOSAL;
-import com.example.dbproject.rentalApp.ITEM_CATEGORY;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class DBHelper extends SQLiteOpenHelper {
-
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "datahbaawe.db";
     private final String databaseIdentifier;
     private static final String TAG = "DBHelper";
 
-
-
     public DBHelper(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.databaseIdentifier = null;
     }
-
     public DBHelper(@Nullable Context context, String databaseIdentifier) {
         super(context, DB_NAME, null, DB_VERSION);
         this.databaseIdentifier = databaseIdentifier;
@@ -40,13 +36,12 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // 데이터 베이스가 생성이 될 때 호출
-        db.execSQL("CREATE TABLE IF NOT EXISTS NOTICE (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, writer TEXT, date TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS STUDENT (id INTEGER PRIMARY KEY AUTOINCREMENT, pw TEXT, name TEXT, dp1 TEXT, dp2 TEXT, sDate TEXT, status TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS ITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, category TEXT, location TEXT, type TEXT, status TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS RENTAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, expired_date TEXT, return_date TEXT, extend INTEGER, return TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS PROPOSAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, content TEXT, date TEXT, time TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS RESERVATION (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, return_date TEXT, state TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
-
+        db.execSQL("CREATE TABLE IF NOT EXISTS NOTICE (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, writer TEXT, date TEXT, time TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS STUDENT (id INTEGER PRIMARY KEY AUTOINCREMENT, pw TEXT, name TEXT, division TEXT, department TEXT, penalty_date TEXT, penalty_state TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS ITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, category TEXT, location TEXT, type TEXT, state TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS RENTAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, start_time TEXT, return_date TEXT, return_time TEXT, rental_state TEXT, rental_extend INTEGER, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS RESERVATION (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, start_time TEXT, return_date TEXT, return_time TEXT, reservation_state TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS PROPOSAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, title TEXT, content TEXT, write_date TEXT, write_time TEXT, response_state TEXT, response_content TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
     }
 
     @Override
@@ -59,25 +54,31 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<NOTICE> noticeItems = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM NOTICE", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM NOTICE ORDER BY id DESC", null);
         if(cursor.getCount() != 0) {
             // 조회된 데이터가 있을 때 내부 수행
+            int idIndex = cursor.getColumnIndex("id");
             int titleIndex = cursor.getColumnIndex("title");
             int contentIndex = cursor.getColumnIndex("content");
             int writerIndex = cursor.getColumnIndex("writer");
             int dateIndex = cursor.getColumnIndex("date");
+            int timeIndex = cursor.getColumnIndex("time");
 
             while (cursor.moveToNext()) {
+                Integer id = cursor.getInt(idIndex);
                 String title = cursor.getString(titleIndex);
                 String content = cursor.getString(contentIndex);
                 String writer = cursor.getString(writerIndex);
                 String date = cursor.getString(dateIndex);
+                String time = cursor.getString(timeIndex);
 
                 NOTICE notice = new NOTICE();
+                notice.setId(id);
                 notice.setTitle(title);
                 notice.setContent(content);
                 notice.setWriter(writer);
                 notice.setDate(date);
+                notice.setTime(time);
                 noticeItems.add(notice);
             }
         }
@@ -147,8 +148,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 PROPOSAL proposal = new PROPOSAL();
                 proposal.setId(proposal_id);
                 proposal.setContent(proposal_content);
-                proposal.setDate(proposal_date);
-                proposal.setTime(proposal_time);
+                proposal.setWrite_date(proposal_date);
+                proposal.setWrite_time(proposal_time);
                 proposalItems.add(proposal);
             }
         }
@@ -234,7 +235,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(date), String.valueOf(location), String.valueOf(category)};
         Cursor cursor = db.rawQuery("SELECT ITEM.category, ITEM.location, COUNT(*) AS total_count,\n" +
-                "       SUM(CASE WHEN ITEM.status = '대여 가능' OR (ITEM.status = '예약중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
+                "       SUM(CASE WHEN ITEM.status = '예약 가능' OR (ITEM.status = '예약중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
                 "FROM ITEM\n" +
                 "LEFT JOIN RESERVATION ON ITEM.ID = RESERVATION.item_id\n" +
                 "WHERE ITEM.location = ? AND ITEM.category = ? AND ITEM.type = 'Reservation'\n" +
@@ -310,82 +311,91 @@ public class DBHelper extends SQLiteOpenHelper {
             return null;
         }
     }
+    public void InsertNoticeDummy() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (2, 'vulputate elementum nullam varius nulla facilisi cras', 'In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.', 'duis mattis egestas metus aenean', '2022-09-01', '9:11');");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (3, 'platea dictumst aliquam augue quam sollicitudin vitae', 'Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus.', 'ipsum dolor sit amet consectetuer adipiscing', '2023-02-23', '0:49');");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (4, 'venenatis tristique fusce congue diam id ornare', 'Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero. Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla.', 'rhoncus mauris enim leo rhoncus sed vestibulum', '2022-06-08', '21:02');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (5, 'est donec odio justo sollicitudin', 'Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet.', 'tincidunt lacus at velit vivamus vel', '2022-07-30', '16:50');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (6, 'duis ac nibh fusce lacus purus', 'Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt.', 'id lobortis convallis tortor risus dapibus', '2022-12-31', '19:50');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (7, 'odio justo sollicitudin ut suscipit', 'Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat.', 'tempor convallis nulla neque libero convallis', '2023-04-04', '11:46');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (8, 'ut suscipit a feugiat et eros vestibulum', 'Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.', 'vivamus tortor duis mattis egestas metus aenean', '2022-09-06', '10:31');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (9, 'est risus auctor sed tristique in tempus', 'Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien.', 'vel lectus in quam fringilla', '2023-02-15', '18:11');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (10, 'duis bibendum felis sed interdum venenatis', 'Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante.', 'eu est congue elementum in hac habitasse', '2023-03-07', '10:42');\n");
+        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (11, 'id sapien in sapien iaculis', 'Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat.', 'lacinia aenean sit amet justo', '2023-01-28', '9:20');\n");
+    }
+
 
 
 
     // INSERT 문
-    public void InsertNotice(String _title, String _content, String _writer, String _date) {
+    public void InsertNotice(Integer _id, String _title, String _content, String _writer, String _date, String _time) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO NOTICE (title, content, writer, date) VALUES('" + _title + "','" + _content + "','" + _writer + "','" + _date + "');");
+        db.execSQL("INSERT INTO NOTICE (id, title, content, writer, date, time) VALUES('" + _id + "','" + _title + "','" + _content + "','" + _writer + "','" + _date + "','" + _time + "');");
     }
-    public void InsertStudent(Integer _id, String _pw, String _name, String _dp1, String _dp2, String _sDate, String _status) {
+    public void InsertNotice(String _title, String _content, String _writer, String _date, String _time) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO STUDENT (id, pw, name, dp1, dp2, sDate, status) VALUES('" + _id + "','" + _pw + "','" + _name + "','" + _dp1 + "','" + _dp2 + "','" + _sDate + "','" + _status + "');");
+        db.execSQL("INSERT INTO NOTICE (title, content, writer, date, time) VALUES('" + _title + "','" + _content + "','" + _writer + "','" + _date + "','" + _time + "');");
     }
-    public void InsertStudent(String _pw, String _name, String _dp1, String _dp2, String _sDate, String _status) {
+    public void InsertStudent(Integer _id, String _pw, String _name, String _division, String _department, String _penalty_date, String _penalty_state) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO STUDENT (pw, name, dp1, dp2, sDate, status) VALUES('" + _pw + "','" + _name + "','" + _dp1 + "','" + _dp2 + "','" + _sDate + "','" + _status + "');");
+        db.execSQL("INSERT INTO STUDENT (id, pw, name, division, department, _penalty_date, _penalty_state) VALUES('" + _id + "','" + _pw + "','" + _name + "','" + _division + "','" + _department + "','" + _penalty_date + "','" + _penalty_state + "');");
     }
-    public void InsertItem(String _name, String _category, String _location, String _type, String _status) {
+    public void InsertItem(Integer _id, String _name, String _category, String _location, String _type, String _state) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO ITEM (name, category, location, type, status) VALUES('" + _name + "','" + _category + "','" + _location + "','" + _type + "','" + _status + "');");
+        db.execSQL("INSERT INTO ITEM (id, name, category, location, type, state) VALUES('" + _id + "','" + _name + "','" + _category + "','" + _location + "','" + _type + "','" + _state + "');");
     }
-    public void InsertRental(Integer _student_id, Integer _item_id, String _start_date, String _expired_date, String _return_date, Integer _extend, String _return) {
+    public void InsertItem(String _name, String _category, String _location, String _type, String _state) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO RENTAL (student_id, item_id, start_date, expired_date, return_date, extend, return) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _expired_date + "','" + _return_date + "','" + _extend + "','" + _return + "');");
+        db.execSQL("INSERT INTO ITEM (name, category, location, type, state) VALUES('" + _name + "','" + _category + "','" + _location + "','" + _type + "','" + _state + "');");
     }
-    public void InsertProposal(Integer _student_id, String _content, String _date, String _time) {
+    public void InsertRental(Integer _id, Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _rental_state, Integer _rental_extend) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO PROPOSAL (student_id, content, date, time) VALUES('" + _student_id + "','" + _content + "', '" + _date + "', '" + _time + "')");
-    }
-    public void InsertReservation(Integer _student_id, Integer _item_id, String _start_date, String _return_date, String _state) {
+        db.execSQL("INSERT INTO RENTAL (id, student_id, item_id, start_date, start_time, return_date, return_time, rental_state, rental_extend) VALUES('" + _id + "','" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _rental_state + "','" + _rental_extend + "');");
+    }public void InsertRental(Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _rental_state, Integer _rental_extend) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO RESERVATION (student_id, item_id, start_date, return_date, state) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _return_date + "','" + _state + "')");
+        db.execSQL("INSERT INTO RENTAL (student_id, item_id, start_date, start_time, return_date, return_time, rental_state, rental_extend) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _rental_state + "','" + _rental_extend + "');");
     }
+    public void InsertReservation(Integer _id, Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _reservation_state) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO RESERVATION (id, student_id, item_id, start_date, start_time, return_date, return_time, reservation_state) VALUES('" + _id + "','" + _student_id + "','" + _item_id + "','" + _start_date + "''" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _reservation_state + "')");
+    }
+    public void InsertReservation(Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _reservation_state) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO RESERVATION (student_id, item_id, start_date, start_time, return_date, return_time, reservation_state) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "''" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _reservation_state + "')");
+    }
+    public void InsertProposal(Integer _id, Integer _student_id, String _title, String _content, String _write_date, String _write_time, String _response_state, String _response_content) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO PROPOSAL (id, student_id, title, content, write_date, write_time, _response_state, _response_content) VALUES('" + _id + "','" + _student_id + "','" + _title + "','" + _content + "', '" + _write_date + "', '" + _write_time + "','" + _response_state + "','" + _response_content + "')");
+    }
+    public void InsertProposal(Integer _student_id, String _title, String _content, String _write_date, String _write_time, String _response_state, String _response_content) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO PROPOSAL (student_id, title, content, write_date, write_time, _response_state, _response_content) VALUES('" + _student_id + "','" + _title + "','" + _content + "', '" + _write_date + "', '" + _write_time + "','" + _response_state + "','" + _response_content + "')");
+    }
+    public void InsertProposal(Integer _student_id, String _content, String _write_date, String _write_time) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO PROPOSAL (student_id, content, write_date, write_time) VALUES('" + _student_id + "','" + _content + "', '" + _write_date + "', '" + _write_time + "')");
+    }
+
+
+
     // UPDATE 문
-    public void updateNotice(String _title, String _content, String _writer, String _date, String _beforeData) {
+    public void UpdateNotice(String _title, String _content, String _writer, String _date, String _time, Integer _beforeId) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE NOTICE SET title='" + _title + "', content='" + _content + "', writer='" + _writer + "', date='" + _date + "', WHERE date='" + _beforeData + "'");
+        db.execSQL("UPDATE NOTICE SET title='" + _title + "', content='" + _content + "', writer='" + _writer + "', date='" + _date + "', time='" + _time + "', WHERE id='" + _beforeId + "'");
     }
-    public void updateItem(String _status, Integer _beforeId) {
+    public void UpdateStudent(String _pw, String _name, String _division, String _department, String _penalty_date, String _penalty_state, Integer _beforeId ) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE ITEM SET status='" + _status + "' WHERE id='" + _beforeId + "'");
+        db.execSQL("UPDATE STUDENT SET pw='" + _pw + "', name='" + _name + "', division='" + _division + "', department='" + _department + "', penalty_date='" + _penalty_date + "', penalty-state'" + _penalty_state + "', WHERE id='" + _beforeId + "'");
     }
-
-
-    public void updateInquiryList(List<String> inquiryList, ArrayAdapter<String> adapter) {
-        inquiryList.clear();
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = null;
-        try {
-            cursor = db.rawQuery("SELECT * FROM PROPOSAL ORDER BY id DESC", null);
-            if (cursor != null && cursor.getCount() > 0) {
-                int proposal_id_Index = cursor.getColumnIndex("id");
-                int proposal_content_Index = cursor.getColumnIndex("item_id");
-                int proposal_date_Index = cursor.getColumnIndex("item_name");
-                int proposal_time_Index = cursor.getColumnIndex("start_date");
-
-                while (cursor.moveToNext()) {
-                    int id = cursor.getInt(proposal_id_Index);
-                    String content = cursor.getString(proposal_content_Index);
-                    String date = cursor.getString(proposal_date_Index);
-                    String time = cursor.getString(proposal_time_Index);
-                    String inquiry = "[" + id + "]   " + "( " + date + " " + time + " )" + "\n\n" + content;
-                    inquiryList.add(inquiry);
-                }
-            }
-        } catch (Exception e) {
-            // 예외 처리
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            db.close();
-        }
-        adapter.notifyDataSetChanged();
+    public void UpdateItem(String _name, String _category, String _location, String _type, String _state, Integer _beforeId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE ITEM SET name='" + _name + "', category='" + _category + "', location='" + _location + "', type='" + _type + "', state='" + _state + "', WHERE id='" + _beforeId + "'");
     }
-
-
+    public void UpdateItem(String _state, Integer _beforeId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE ITEM SET state='" + _state + "' WHERE id='" + _beforeId + "'");
+    }
 
 
     // DELETE 문
@@ -393,7 +403,4 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM NOTICE WHERE id = '" + _id + "'");
     }
-
-
-
 }

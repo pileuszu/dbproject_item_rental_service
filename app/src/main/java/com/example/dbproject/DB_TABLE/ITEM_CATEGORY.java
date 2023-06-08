@@ -1,4 +1,4 @@
-package com.example.dbproject.rentalApp;
+package com.example.dbproject.DB_TABLE;
 
 public class ITEM_CATEGORY {
 

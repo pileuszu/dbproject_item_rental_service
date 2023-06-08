@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dbproject.DB_TABLE.ITEM_CATEGORY;
 import com.example.dbproject.R;
 import com.example.dbproject.tabLayer.DBHelper;
 
@@ -18,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
@@ -66,8 +66,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                     // 대여 작업을 위한 DB 업데이트 등의 코드 실행
                     // 예시로 DBHelper를 사용한 DB 업데이트
                     Integer itemId = mCategoryDBHelper.selectItemId_For_RentalItem(categoryItems.get(_position).getItem_category(), categoryItems.get(_position).getItem_location());
-                    mCategoryDBHelper.updateItem("대여중", itemId);
-                    mCategoryDBHelper.InsertRental(student_id, itemId, getCurrentDate(), getNextDate(), null, 0, "대여중");
+                    mCategoryDBHelper.UpdateItem("대여중", itemId);
+                    mCategoryDBHelper.InsertRental(student_id, itemId, getCurrentDate(), getNextDate(), null, null,  "대여중", 0);
                     Toast.makeText(mContext, "대여가 완료되었습니다.", Toast.LENGTH_SHORT).show();
                     notifyDataSetChanged();
                 } else {
