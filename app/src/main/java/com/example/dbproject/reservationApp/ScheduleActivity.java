@@ -117,7 +117,7 @@ public class ScheduleActivity extends AppCompatActivity {
                                 if(categoryItem.getItem_left_amount() > 0) {
                                     Integer itemId = dbHelper.selectItemId_For_ReservationItem(categoryItem.getItem_category(), categoryItem.getItem_location());
                                     dbHelper.UpdateItem("예약중", itemId);
-                                    dbHelper.InsertReservation(190012345, itemId, selectedDate, getCurrentTime(), null, null, "예약중");
+                                    dbHelper.InsertReservation(190012345, itemId, selectedDate, null, null, null,"예약중");
 
                                         Toast.makeText(ScheduleActivity.this, "예약이 완료되었습니다.", Toast.LENGTH_SHORT).show();
                                 } else {

@@ -1,6 +1,7 @@
 package com.example.dbproject.rentalApp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull CategoryAdapter.ViewHolder holder, int position) {
+        Log.e("CategoryAdapter", "onBindViewHolder Occured");
         holder.tv_rental_category_name.setText(categoryItems.get(position).getItem_category());
         holder.tv_rental_amount.setText("총 개수 / 남은 개수 : " +
                 categoryItems.get(position).getItem_total_amount() +
@@ -91,7 +93,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
             super(itemView);
             tv_rental_category_name = itemView.findViewById(R.id.tv_rental_category_name);
             tv_rental_amount = itemView.findViewById(R.id.tv_rental_amount);
-            button = itemView.findViewById(R.id.button);
+            button = itemView.findViewById(R.id.rental_button);
+            Log.e("ViewHolder", "ViewHolder Occured");
         }
     }
 

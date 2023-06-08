@@ -20,7 +20,7 @@ import java.util.Random;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
-    private static final String DB_NAME = "datahbaawe.db";
+    private static final String DB_NAME = "dat2a2h2ba4aw1e.db";
     private final String databaseIdentifier;
     private static final String TAG = "DBHelper";
 
@@ -38,7 +38,7 @@ public class DBHelper extends SQLiteOpenHelper {
         // 데이터 베이스가 생성이 될 때 호출
         db.execSQL("CREATE TABLE IF NOT EXISTS NOTICE (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, writer TEXT, date TEXT, time TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS STUDENT (id INTEGER PRIMARY KEY AUTOINCREMENT, pw TEXT, name TEXT, division TEXT, department TEXT, penalty_date TEXT, penalty_state TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS ITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, category TEXT, location TEXT, type TEXT, state TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS ITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, category TEXT, location TEXT, type TEXT, state TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS RENTAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, start_time TEXT, return_date TEXT, return_time TEXT, rental_state TEXT, rental_extend INTEGER, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
         db.execSQL("CREATE TABLE IF NOT EXISTS RESERVATION (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, start_time TEXT, return_date TEXT, return_time TEXT, reservation_state TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
         db.execSQL("CREATE TABLE IF NOT EXISTS PROPOSAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, title TEXT, content TEXT, write_date TEXT, write_time TEXT, response_state TEXT, response_content TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
@@ -162,9 +162,9 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<ITEM_CATEGORY> categoryItems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(location)};
-        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN status = '대여 가능' THEN 1 END) AS available_count " +
+        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN state = '대여 가능' THEN 1 END) AS available_count " +
                 "FROM ITEM " +
-                "WHERE location = ? AND type = 'RENTAL'" +
+                "WHERE location = ? AND type = 'Rental'" +
                 "GROUP BY category, location", selectionArgs);
         if(cursor.getCount() != 0) {
             Log.i(TAG, "cursor.getCount() != 0");
@@ -188,7 +188,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 categoryItems.add(item_category);
             }
         } else if (cursor.getCount() == 0) {
-            Log.i(TAG, "cursor.getCount() == 0");
+            Log.i(TAG, "Rental cursor.getCount() == 0");
         }
         cursor.close();
 
@@ -198,7 +198,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<ITEM_CATEGORY> categoryItems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(location)};
-        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN status = '대여 가능' THEN 1 END) AS available_count " +
+        Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN state = '예약 가능' THEN 1 END) AS available_count " +
                 "FROM ITEM " +
                 "WHERE location = ? AND type = 'Reservation'" +
                 "GROUP BY category, location", selectionArgs);
@@ -224,7 +224,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 categoryItems.add(item_category);
             }
         } else if (cursor.getCount() == 0) {
-            Log.i(TAG, "cursor.getCount() == 0");
+            Log.i(TAG, "Reservation cursor.getCount() == 0");
         }
         cursor.close();
 
@@ -235,7 +235,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(date), String.valueOf(location), String.valueOf(category)};
         Cursor cursor = db.rawQuery("SELECT ITEM.category, ITEM.location, COUNT(*) AS total_count,\n" +
-                "       SUM(CASE WHEN ITEM.status = '예약 가능' OR (ITEM.status = '예약중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
+                "       SUM(CASE WHEN ITEM.state = '예약 가능' OR (ITEM.state = '예약중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
                 "FROM ITEM\n" +
                 "LEFT JOIN RESERVATION ON ITEM.ID = RESERVATION.item_id\n" +
                 "WHERE ITEM.location = ? AND ITEM.category = ? AND ITEM.type = 'Reservation'\n" +
@@ -313,17 +313,137 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public void InsertNoticeDummy() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (2, 'vulputate elementum nullam varius nulla facilisi cras', 'In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.', 'duis mattis egestas metus aenean', '2022-09-01', '9:11');");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (3, 'platea dictumst aliquam augue quam sollicitudin vitae', 'Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus.', 'ipsum dolor sit amet consectetuer adipiscing', '2023-02-23', '0:49');");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (4, 'venenatis tristique fusce congue diam id ornare', 'Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero. Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla.', 'rhoncus mauris enim leo rhoncus sed vestibulum', '2022-06-08', '21:02');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (5, 'est donec odio justo sollicitudin', 'Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet.', 'tincidunt lacus at velit vivamus vel', '2022-07-30', '16:50');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (6, 'duis ac nibh fusce lacus purus', 'Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt.', 'id lobortis convallis tortor risus dapibus', '2022-12-31', '19:50');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (7, 'odio justo sollicitudin ut suscipit', 'Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat.', 'tempor convallis nulla neque libero convallis', '2023-04-04', '11:46');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (8, 'ut suscipit a feugiat et eros vestibulum', 'Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.', 'vivamus tortor duis mattis egestas metus aenean', '2022-09-06', '10:31');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (9, 'est risus auctor sed tristique in tempus', 'Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien.', 'vel lectus in quam fringilla', '2023-02-15', '18:11');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (10, 'duis bibendum felis sed interdum venenatis', 'Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante.', 'eu est congue elementum in hac habitasse', '2023-03-07', '10:42');\n");
-        db.execSQL("insert into NOTICE (id, title, content, writer, date, time) values (11, 'id sapien in sapien iaculis', 'Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat.', 'lacinia aenean sit amet justo', '2023-01-28', '9:20');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('vulputate elementum nullam varius nulla facilisi cras', 'In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.', 'duis mattis egestas metus aenean', '2022-09-01', '9:11');");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('platea dictumst aliquam augue quam sollicitudin vitae', 'Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus.', 'ipsum dolor sit amet consectetuer adipiscing', '2023-02-23', '0:49');");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('venenatis tristique fusce congue diam id ornare', 'Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero. Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla.', 'rhoncus mauris enim leo rhoncus sed vestibulum', '2022-06-08', '21:02');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('duis ac nibh fusce lacus purus', 'Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt.', 'id lobortis convallis tortor risus dapibus', '2022-12-31', '19:50');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('odio justo sollicitudin ut suscipit', 'Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat.', 'tempor convallis nulla neque libero convallis', '2023-04-04', '11:46');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('ut suscipit a feugiat et eros vestibulum', 'Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.', 'vivamus tortor duis mattis egestas metus aenean', '2022-09-06', '10:31');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('est risus auctor sed tristique in tempus', 'Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien.', 'vel lectus in quam fringilla', '2023-02-15', '18:11');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('duis bibendum felis sed interdum venenatis', 'Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante.', 'eu est congue elementum in hac habitasse', '2023-03-07', '10:42');\n");
+        db.execSQL("insert into NOTICE (title, content, writer, date, time) values ('id sapien in sapien iaculis', 'Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat.', 'lacinia aenean sit amet justo', '2023-01-28', '9:20');\n");
     }
+    public void InsertStudentDummy(){
+        SQLiteDatabase db = getWritableDatabase();
+    }
+    public void InsertItemDummy() {
+        SQLiteDatabase db = getWritableDatabase();
+    }
+    public void InsertItemDummy2() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스1', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스2', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스3', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스4', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스5', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스6', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스7', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스8', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스9', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('마우스10', '마우스', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산1', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산2', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산3', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산4', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산5', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산6', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산7', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산8', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산9', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산10', '우산', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산1', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산2', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산3', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산4', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산5', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산6', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산7', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산8', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산9', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('우산10', '우산', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대1', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대2', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대3', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대4', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대5', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대6', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대7', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대8', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대9', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('노트북거치대10', '노트북거치대', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입1', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입2', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입3', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입4', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입5', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입6', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입7', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입8', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입9', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_C타입10', '충전기_C타입', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀1', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀2', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀3', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀4', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀5', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀6', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀7', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀8', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀9', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기_8핀10', '충전기_8핀', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리1', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리2', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리3', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리4', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리5', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리6', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리7', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리8', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리9', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('돗자리10', '돗자리', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기1', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기2', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기3', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기4', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기5', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기6', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기7', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기8', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기9', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('손선풍기10', '손선풍기', '소프트웨어학부', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기1', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기2', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기3', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기4', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기5', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기6', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기7', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기8', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기9', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기10', '공학용계산기', '소프트웨어융합대학', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기1', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기2', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기3', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기4', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기5', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기6', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기7', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기8', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기9', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('충전기10', '충전기', '소프트웨어학과', 'Rental', '대여 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('공학용계산기1', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭2', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭3', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭4', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭5', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭6', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭7', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭8', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭9', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+        db.execSQL("insert into ITEM (name, category, location, type, state) values ('멀티탭10', '멀티탭', '소프트웨어학과', 'Reservation', '예약 가능');");
+    }
+
+
 
 
 
@@ -356,13 +476,13 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO RENTAL (student_id, item_id, start_date, start_time, return_date, return_time, rental_state, rental_extend) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _rental_state + "','" + _rental_extend + "');");
     }
-    public void InsertReservation(Integer _id, Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _reservation_state) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO RESERVATION (id, student_id, item_id, start_date, start_time, return_date, return_time, reservation_state) VALUES('" + _id + "','" + _student_id + "','" + _item_id + "','" + _start_date + "''" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _reservation_state + "')");
-    }
+//    public void InsertReservation(Integer _id, Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _reservation_state) {
+//        SQLiteDatabase db = getWritableDatabase();
+//        db.execSQL("INSERT INTO RESERVATION (id, student_id, item_id, start_date, start_time, return_date, return_time, reservation_state) VALUES('" + _id + "','" + _student_id + "','" + _item_id + "','" + _start_date + "''" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _reservation_state + "')");
+//    }
     public void InsertReservation(Integer _student_id, Integer _item_id, String _start_date, String _start_time, String _return_date, String _return_time, String _reservation_state) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO RESERVATION (student_id, item_id, start_date, start_time, return_date, return_time, reservation_state) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "''" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _reservation_state + "')");
+        db.execSQL("INSERT INTO RESERVATION (student_id, item_id, start_date, start_time, return_date, return_time, reservation_state) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _start_time + "','" + _return_date + "','" + _return_time + "','" + _reservation_state + "');");
     }
     public void InsertProposal(Integer _id, Integer _student_id, String _title, String _content, String _write_date, String _write_time, String _response_state, String _response_content) {
         SQLiteDatabase db = getWritableDatabase();

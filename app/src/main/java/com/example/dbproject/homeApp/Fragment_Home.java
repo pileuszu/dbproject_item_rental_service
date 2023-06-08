@@ -58,6 +58,7 @@ public class Fragment_Home extends Fragment {
         try {
             if (mDBHelper != null) {
                 mDBHelper.InsertNoticeDummy();
+                mDBHelper.InsertItemDummy2();
                 mNoticeItems = mDBHelper.getNoticeList();
                 if (noticeAdapter == null) {
                     noticeAdapter = new NoticeAdapter(mNoticeItems, getActivity().getApplicationContext());

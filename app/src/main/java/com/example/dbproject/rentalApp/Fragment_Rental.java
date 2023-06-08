@@ -53,12 +53,21 @@ public class Fragment_Rental extends Fragment {
         recyclerView_rental_title1 = view.findViewById(R.id.recyclerView_rental_title1);
         recyclerView_rental_title2 = view.findViewById(R.id.recyclerView_rental_title2);
         recyclerView_rental_title3 = view.findViewById(R.id.recyclerView_rental_title3);
+        if (mItem_CategoryItems_1 == null) {
+            Log.e("Fragment_rental", "1_mItem_CategoryItems_1 == null");
+        }
         mItem_CategoryItems_1 = new ArrayList<>();
+        if (mItem_CategoryItems_1 == null) {
+            Log.e("Fragment_rental", "2_mItem_CategoryItems_1 == null");
+        }
         mItem_CategoryItems_2 = new ArrayList<>();
         mItem_CategoryItems_3 = new ArrayList<>();
         rental_scrollview = view.findViewById(R.id.rental_scrollview);
         rental_scrollview.setSmoothScrollingEnabled(true);
         loadRecentDB();
+        if(mDBHelper == null) {
+            Log.e("Fragment_rental", "mDBHelper is null");
+        }
         return view;
     }
 
@@ -78,29 +87,31 @@ public class Fragment_Rental extends Fragment {
     protected void loadRecentDB() {
         try {
             if (mDBHelper != null) {
+                Log.e("Fragment_rental", "mDBHelper != null");
+                if (mItem_CategoryItems_1 == null) {
+                    Log.e("Fragment_rental", "mItem_CategoryItems_1 == null");
+                }
                 mItem_CategoryItems_1 = mDBHelper.getRentalItem_Category_List(location_1);
                 mItem_CategoryItems_2 = mDBHelper.getRentalItem_Category_List(location_2);
                 mItem_CategoryItems_3 = mDBHelper.getRentalItem_Category_List(location_3);
+                if (mItem_CategoryItems_1 == null) {
+                    Log.e("Fragment_rental", "retry_mItem_CategoryItems_1 == null");
+                }
                 if (categoryAdapter_1 == null) {
+                    Log.e("Fragment_rental", "categoryAdapter_1 == null");
                     categoryAdapter_1 = new CategoryAdapter(mItem_CategoryItems_1, getActivity().getApplicationContext());
                     recyclerView_rental_title1.setHasFixedSize(true);
                     recyclerView_rental_title1.setAdapter(categoryAdapter_1);
-                } else {
-                    categoryAdapter_1.setCategoryItems(mItem_CategoryItems_1);
                 }
                 if (categoryAdapter_2 == null) {
                     categoryAdapter_2 = new CategoryAdapter(mItem_CategoryItems_2, getActivity().getApplicationContext());
                     recyclerView_rental_title2.setHasFixedSize(true);
                     recyclerView_rental_title2.setAdapter(categoryAdapter_2);
-                } else {
-                    categoryAdapter_2.setCategoryItems(mItem_CategoryItems_2);
                 }
                 if (categoryAdapter_3 == null) {
                     categoryAdapter_3 = new CategoryAdapter(mItem_CategoryItems_3, getActivity().getApplicationContext());
                     recyclerView_rental_title3.setHasFixedSize(true);
                     recyclerView_rental_title3.setAdapter(categoryAdapter_3);
-                } else {
-                    categoryAdapter_3.setCategoryItems(mItem_CategoryItems_3);
                 }
             }
         } catch (Exception e) {
