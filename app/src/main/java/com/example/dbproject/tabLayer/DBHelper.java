@@ -91,10 +91,10 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<HISTORY> historyItems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(student_id)};
-        Cursor cursor = db.rawQuery("SELECT RENTAL.*, ITEM.name AS item_name\n" +
+        Cursor cursor = db.rawQuery("SELECT RENTAL.*, ITEM.name AS item_name, ITEM.id As item_id\n" +
                 "FROM RENTAL\n" +
                 "JOIN ITEM ON RENTAL.item_id = ITEM.id\n" +
-                "WHERE RENTAL.student_id = ?;", selectionArgs);
+                "WHERE RENTAL.student_id = ?", selectionArgs);
         if(cursor.getCount() != 0) {
             // 조회된 데이터가 있을 때 내부 수행
             int history_id_Index = cursor.getColumnIndex("id");
@@ -102,7 +102,7 @@ public class DBHelper extends SQLiteOpenHelper {
             int history_item_name_Index = cursor.getColumnIndex("item_name");
             int history_start_date_Index = cursor.getColumnIndex("start_date");
             int history_return_date_Index = cursor.getColumnIndex("return_date");
-            int history_return_state_Index = cursor.getColumnIndex("return");
+            int history_return_state_Index = cursor.getColumnIndex("rental_state");
 
             while (cursor.moveToNext()) {
                 Integer history_id = cursor.getInt(history_id_Index);
@@ -121,6 +121,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 history.setHistory_return_state(history_return_state);
                 historyItems.add(history);
             }
+        }
+        if (cursor.getCount() == 0) {
+            Log.e("Tag", "cursor.getCount() == 0");
         }
         cursor.close();
 
@@ -196,6 +199,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public ArrayList<ITEM_CATEGORY> getReservationItem_Category_List(String location) {
         ArrayList<ITEM_CATEGORY> categoryItems = new ArrayList<>();
+
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(location)};
         Cursor cursor = db.rawQuery("SELECT category, location, COUNT(*) AS total_count, COUNT(CASE WHEN state = '예약 가능' THEN 1 END) AS available_count " +

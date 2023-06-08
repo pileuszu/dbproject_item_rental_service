@@ -66,7 +66,7 @@ public class Fragment_History extends Fragment {
             if (mDBHelper != null) {
                 mHistoryItems = mDBHelper.getHistoryList(_studentID);
                 if (historyAdapter == null) {
-                    historyAdapter = new HistoryAdapter(mHistoryItems, requireContext());
+                    historyAdapter = new HistoryAdapter(mHistoryItems, getContext().getApplicationContext());
                     mRv_history.setHasFixedSize(true);
                     mRv_history.setAdapter(historyAdapter);
                 }
