@@ -234,7 +234,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         String[] selectionArgs = {String.valueOf(date), String.valueOf(location), String.valueOf(category)};
         Cursor cursor = db.rawQuery("SELECT ITEM.category, ITEM.location, COUNT(*) AS total_count,\n" +
-                "       SUM(CASE WHEN ITEM.status = '대여 가능' OR (ITEM.status = '대여중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
+                "       SUM(CASE WHEN ITEM.status = '대여 가능' OR (ITEM.status = '예약중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
                 "FROM ITEM\n" +
                 "LEFT JOIN RESERVATION ON ITEM.ID = RESERVATION.item_id\n" +
                 "WHERE ITEM.location = ? AND ITEM.category = ? AND ITEM.type = 'Reservation'\n" +
@@ -283,6 +283,28 @@ public class DBHelper extends SQLiteOpenHelper {
             Random random = new Random();
             int randomIndex = random.nextInt(matchingItemIds.size());
             Log.i(TAG, "selectItemId_For_RentalItem Success!");
+            return matchingItemIds.get(randomIndex);
+        } else {
+            return null;
+        }
+    }
+    public Integer selectItemId_For_ReservationItem(String _category, String _location) {
+        List<Integer> matchingItemIds = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        String[] selectionArgs = {String.valueOf(_category), String.valueOf(_location)};
+        Cursor cursor = db.rawQuery("SELECT id FROM ITEM WHERE category = ? AND location = ? AND type = 'Reservation'", selectionArgs);
+        if(cursor.getCount() != 0) {
+            int id_Index = cursor.getColumnIndex("id");
+            while (cursor.moveToNext()) {
+                Integer _id = cursor.getInt(id_Index);
+                matchingItemIds.add(_id);
+            }
+        }
+        cursor.close();
+        if (matchingItemIds.size() > 0) {
+            Random random = new Random();
+            int randomIndex = random.nextInt(matchingItemIds.size());
+            Log.i(TAG, "selectItemId_For_ReservationItem Success!");
             return matchingItemIds.get(randomIndex);
         } else {
             return null;

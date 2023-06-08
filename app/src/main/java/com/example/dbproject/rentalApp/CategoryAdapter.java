@@ -71,7 +71,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                     Toast.makeText(mContext, "대여가 완료되었습니다.", Toast.LENGTH_SHORT).show();
                     notifyDataSetChanged();
                 } else {
-                    Toast.makeText(mContext, "대여 가능한 개수를 초과하였습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "대여 가능한 아이템이 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

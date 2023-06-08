@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,6 +23,7 @@ import com.example.dbproject.tabLayer.DBHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class ScheduleActivity extends AppCompatActivity {
@@ -54,7 +56,6 @@ public class ScheduleActivity extends AppCompatActivity {
         textViewSelectedDate = findViewById(R.id.textViewSelectedDate);
         schedule_item_name = findViewById(R.id.schedule_item_name);
         schedule_count = findViewById(R.id.schedule_count);
-        schedule_confirm_button = findViewById(R.id.schedule_confirm_button);
 
         calendar = Calendar.getInstance();
 
@@ -97,6 +98,8 @@ public class ScheduleActivity extends AppCompatActivity {
                         String _itemLocation = itemLocation;
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                         String selectedDate = sdf.format(calendar.getTime());
+                        schedule_confirm_button = findViewById(R.id.schedule_confirm_button);
+
 
                         categoryItem = dbHelper.getReservationItem(_itemCategory, _itemLocation, selectedDate);
                         if(categoryItem != null) {
@@ -108,6 +111,21 @@ public class ScheduleActivity extends AppCompatActivity {
                             schedule_count.setText("총 개수 / 남은 개수 : 0 / 0");
                         }
                         textViewSelectedDate.setText("Selected Date: " + selectedDate);
+                        schedule_confirm_button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if(categoryItem.getItem_left_amount() > 0) {
+                                    Integer itemId = dbHelper.selectItemId_For_ReservationItem(categoryItem.getItem_category(), categoryItem.getItem_location());
+                                    dbHelper.updateItem("예약중", itemId);
+                                    dbHelper.InsertReservation(190012345, itemId, selectedDate, null, "예약중");
+                                    Toast.makeText(ScheduleActivity.this, "예약이 완료되었습니다.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(ScheduleActivity.this, "예약 가능한 아이템이 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                                }
+                                finish();
+                            }
+
+                        });
                     }
                 });
     }
@@ -120,5 +138,10 @@ public class ScheduleActivity extends AppCompatActivity {
             popupWindow.dismiss();
             popupWindow = null;
         }
+    }
+    private String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Date currentDate = new Date();
+        return dateFormat.format(currentDate);
     }
 }
