@@ -1,12 +1,15 @@
 package com.example.dbproject.reservationApp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dbproject.R;
+import com.example.dbproject.rentalApp.ITEM_CATEGORY;
 import com.example.dbproject.tabLayer.DBHelper;
 
 import java.text.SimpleDateFormat;
@@ -23,28 +27,51 @@ import java.util.Locale;
 public class ScheduleActivity extends AppCompatActivity {
     public Integer studentID = 190012345;
     private TextView textViewSelectedDate;
+    private TextView schedule_item_name;
+    private TextView schedule_count;
+    private Button schedule_confirm_button;
     private PopupWindow popupWindow;
     private DatePicker datePicker;
     private Calendar calendar;
     private DBHelper dbHelper;
+    private ITEM_CATEGORY categoryItem;
+    private static final String TAG = "ScheduleActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reservation_schedule);
+        dbHelper = new DBHelper(this);
+        categoryItem = new ITEM_CATEGORY();
+        // 인텐트에서 값을 추출하기 위해 getIntent() 메서드를 사용합니다.
+        Intent intent = getIntent();
+
+        // getStringExtra() 메서드를 사용하여 "item_name"이라는 이름의 문자열 값을 추출합니다.
+        String itemCategory = intent.getStringExtra("item_category");
+        String itemLocation = intent.getStringExtra("item_location");
+        Log.i(TAG, "onCreate: " + " itemCategory: " + itemCategory + " itemLocation: " + itemLocation);
 
         textViewSelectedDate = findViewById(R.id.textViewSelectedDate);
+        schedule_item_name = findViewById(R.id.schedule_item_name);
+        schedule_count = findViewById(R.id.schedule_count);
+        schedule_confirm_button = findViewById(R.id.schedule_confirm_button);
+
         calendar = Calendar.getInstance();
+
+        schedule_item_name.setText(itemCategory);
 
         textViewSelectedDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickerPopup();
+
+                showDatePickerPopup(itemCategory, itemLocation);
             }
         });
     }
 
-    private void showDatePickerPopup() {
+    private void showDatePickerPopup(String itemCategory, String itemLocation) {
+        Log.i(TAG, "showDatePickerPopup: " + " itemCategory: " + itemCategory + " itemLocation: " + itemLocation);
+
         // 팝업 윈도우 초기화
         LayoutInflater inflater = LayoutInflater.from(this);
         View popupView = inflater.inflate(R.layout.popup_date_picker, null);
@@ -66,9 +93,20 @@ public class ScheduleActivity extends AppCompatActivity {
                         calendar.set(Calendar.YEAR, year);
                         calendar.set(Calendar.MONTH, monthOfYear);
                         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
+                        String _itemCategory = itemCategory;
+                        String _itemLocation = itemLocation;
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                         String selectedDate = sdf.format(calendar.getTime());
+
+                        categoryItem = dbHelper.getReservationItem(_itemCategory, _itemLocation, selectedDate);
+                        if(categoryItem != null) {
+                            schedule_count.setText("총 개수 / 남은 개수 : " +
+                                    categoryItem.getItem_total_amount() +
+                                    " / " +
+                                    categoryItem.getItem_left_amount());
+                        } else {
+                            schedule_count.setText("총 개수 / 남은 개수 : 0 / 0");
+                        }
                         textViewSelectedDate.setText("Selected Date: " + selectedDate);
                     }
                 });

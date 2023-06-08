@@ -45,6 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS ITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, category TEXT, location TEXT, type TEXT, status TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS RENTAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, expired_date TEXT, return_date TEXT, extend INTEGER, return TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
         db.execSQL("CREATE TABLE IF NOT EXISTS PROPOSAL (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, content TEXT, date TEXT, time TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS RESERVATION (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, item_id INTEGER, start_date TEXT, return_date TEXT, state TEXT, FOREIGN KEY (student_id) REFERENCES STUDENT(id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY (item_id) REFERENCES ITEM(id) ON UPDATE CASCADE ON DELETE NO ACTION)");
 
     }
 
@@ -192,7 +193,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return categoryItems;
     }
-
     public ArrayList<ITEM_CATEGORY> getReservationItem_Category_List(String location) {
         ArrayList<ITEM_CATEGORY> categoryItems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -221,6 +221,42 @@ public class DBHelper extends SQLiteOpenHelper {
                 item_category.setItem_total_amount(_total_count);
                 item_category.setItem_left_amount(_available_count);
                 categoryItems.add(item_category);
+            }
+        } else if (cursor.getCount() == 0) {
+            Log.i(TAG, "cursor.getCount() == 0");
+        }
+        cursor.close();
+
+        return categoryItems;
+    }
+    public ITEM_CATEGORY getReservationItem(String category, String location, String date) {
+        ITEM_CATEGORY categoryItems = new ITEM_CATEGORY();
+        SQLiteDatabase db = getReadableDatabase();
+        String[] selectionArgs = {String.valueOf(date), String.valueOf(location), String.valueOf(category)};
+        Cursor cursor = db.rawQuery("SELECT ITEM.category, ITEM.location, COUNT(*) AS total_count,\n" +
+                "       SUM(CASE WHEN ITEM.status = '대여 가능' OR (ITEM.status = '대여중' AND (RESERVATION.start_date != ? OR RESERVATION.start_date IS NULL)) THEN 1 ELSE 0 END) AS available_count\n" +
+                "FROM ITEM\n" +
+                "LEFT JOIN RESERVATION ON ITEM.ID = RESERVATION.item_id\n" +
+                "WHERE ITEM.location = ? AND ITEM.category = ? AND ITEM.type = 'Reservation'\n" +
+                "GROUP BY ITEM.category, ITEM.location;\n", selectionArgs);
+        if (cursor.getCount() != 0) {
+            Log.i(TAG, "cursor.getCount() != 0");
+            // 조회된 데이터가 있을 때 내부 수행
+            int categoryIndex = cursor.getColumnIndex("category");
+            int locationIndex = cursor.getColumnIndex("location");
+            int totalCountIndex = cursor.getColumnIndex("total_count");
+            int availableCountIndex = cursor.getColumnIndex("available_count");
+
+            while (cursor.moveToNext()) {
+                String _category = cursor.getString(categoryIndex);
+                String _location = cursor.getString(locationIndex);
+                Integer _totalCount = cursor.getInt(totalCountIndex);
+                Integer _availableCount = cursor.getInt(availableCountIndex);
+
+                categoryItems.setItem_category(_category);
+                categoryItems.setItem_location(_location);
+                categoryItems.setItem_total_amount(_totalCount);
+                categoryItems.setItem_left_amount(_availableCount);
             }
         } else if (cursor.getCount() == 0) {
             Log.i(TAG, "cursor.getCount() == 0");
@@ -280,7 +316,10 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO PROPOSAL (student_id, content, date, time) VALUES('" + _student_id + "','" + _content + "', '" + _date + "', '" + _time + "')");
     }
-
+    public void InsertReservation(Integer _student_id, Integer _item_id, String _start_date, String _return_date, String _state) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO RESERVATION (student_id, item_id, start_date, return_date, state) VALUES('" + _student_id + "','" + _item_id + "','" + _start_date + "','" + _return_date + "','" + _state + "')");
+    }
     // UPDATE 문
     public void updateNotice(String _title, String _content, String _writer, String _date, String _beforeData) {
         SQLiteDatabase db = getWritableDatabase();
@@ -332,5 +371,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM NOTICE WHERE id = '" + _id + "'");
     }
+
+
 
 }

@@ -57,7 +57,12 @@ public class Fragment_Home extends Fragment {
         try {
             if (mDBHelper != null) {
 //                mDBHelper.InsertNotice(123, "123", "123", "123", "!24124");
-                 mDBHelper.InsertItem("우산1", "우산","소프트웨어학부","Reservation","대여 가능");
+//                mDBHelper.InsertItem("우산1", "우산","소프트웨어학부","Reservation","대여 가능");
+//                mDBHelper.InsertItem("우산2", "우산","소프트웨어학부","Reservation","대여 가능");
+//                mDBHelper.InsertItem("우산3", "우산","소프트웨어학부","Reservation","대여중");
+//                mDBHelper.InsertItem("우산4", "우산","소프트웨어학부","Reservation","대여 가능");
+//                mDBHelper.InsertReservation(190012345,28, "2023-06-12", null, "예약중");
+//                mDBHelper.InsertReservation(190012345,2, "2023-06-13", null, "예약중");
                 mNoticeItems = mDBHelper.getNoticeList();
                 if (noticeAdapter == null) {
                     noticeAdapter = new NoticeAdapter(mNoticeItems, getActivity().getApplicationContext());

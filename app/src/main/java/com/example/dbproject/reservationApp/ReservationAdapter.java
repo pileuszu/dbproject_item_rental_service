@@ -30,6 +30,8 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     private Context mContext;
     private DBHelper mDBHelper;
 
+
+
     public ReservationAdapter(ArrayList<ITEM_CATEGORY> reservationItems, Context mContext) {
         this.reservationItems = reservationItems;
         this.mContext = mContext;
@@ -51,7 +53,8 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), ScheduleActivity.class);
-                intent.putExtra("position", _position);
+                intent.putExtra("item_category", reservationItems.get(_position).getItem_category());
+                intent.putExtra("item_location", reservationItems.get(_position).getItem_location());
                 v.getContext().startActivity(intent);
             }
         });
